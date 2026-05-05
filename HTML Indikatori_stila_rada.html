@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indikatori vašeg stila rada</title>
+<style>
+  :root {
+    --blue: #1a56db;
+    --blue-light: #dbeafe;
+    --blue-dark: #1e3a5f;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --orange: #d97706;
+    --orange-light: #fef3c7;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --font: 'Segoe UI', system-ui, sans-serif;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #f0f4f8; color: var(--gray-800); padding-bottom: 60px; }
+
+  .header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1a56db 100%);
+    color: white; padding: 32px 24px 28px;
+  }
+  .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .header p { font-size: 14px; opacity: 0.85; }
+
+  .container { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+  /* UPUTE */
+  .upute {
+    background: #fef9c3; border: 1.5px solid #fcd34d;
+    border-radius: var(--radius); padding: 18px 20px; margin-top: 24px;
+  }
+  .upute h2 { font-size: 14px; font-weight: 700; color: #92400e; margin-bottom: 10px; }
+  .upute ul { list-style: none; padding: 0; }
+  .upute li { font-size: 13.5px; color: #78350f; line-height: 1.6; padding: 2px 0; }
+  .upute li::before { content: "→ "; font-weight: 700; }
+  .upute .primjer {
+    background: white; border-radius: 6px; padding: 10px 14px;
+    margin-top: 10px; font-size: 13px; color: var(--gray-700);
+    border: 1px solid #fde68a;
+  }
+  .upute .primjer strong { color: var(--blue-dark); }
+
+  /* PITANJA */
+  .section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.6px; color: var(--gray-400); margin: 24px 0 10px;
+  }
+
+  .question-card {
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+    margin-bottom: 10px; overflow: hidden;
+    border-left: 4px solid var(--gray-200);
+    transition: border-color 0.2s;
+  }
+  .question-card.valid { border-left-color: var(--green); }
+  .question-card.invalid { border-left-color: var(--red); }
+
+  .question-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px 0; font-size: 11px; font-weight: 700;
+    color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .q-num {
+    background: var(--gray-100); border-radius: 50%;
+    width: 22px; height: 22px; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 700;
+    color: var(--gray-600); flex-shrink: 0;
+  }
+  .q-sum-indicator {
+    margin-left: auto; font-size: 12px;
+    padding: 2px 8px; border-radius: 10px;
+    background: var(--gray-100); color: var(--gray-400);
+    transition: all 0.2s;
+  }
+  .q-sum-indicator.ok { background: var(--green-light); color: var(--green); }
+  .q-sum-indicator.err { background: var(--red-light); color: var(--red); }
+
+  .question-rows { padding: 8px 16px 14px; }
+  .q-row {
+    display: flex; align-items: center; gap: 10px; padding: 5px 0;
+  }
+  .q-label {
+    display: inline-block; width: 20px; height: 20px; border-radius: 4px;
+    font-size: 11px; font-weight: 700; text-align: center; line-height: 20px;
+    flex-shrink: 0;
+  }
+  .q-label.a { background: var(--blue-light); color: var(--blue); }
+  .q-label.b { background: var(--purple-light); color: var(--purple); }
+
+  .q-text { flex: 1; font-size: 14px; color: var(--gray-700); line-height: 1.4; }
+
+  .q-col-tag {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .q-col-tag.K { background: #fef3c7; color: #92400e; }
+  .q-col-tag.P { background: #dbeafe; color: #1e40af; }
+
+  .score-input {
+    width: 52px; flex-shrink: 0;
+    padding: 6px 8px; border: 2px solid var(--gray-200);
+    border-radius: 6px; font-size: 15px; font-weight: 700;
+    text-align: center; font-family: var(--font);
+    color: var(--gray-800); background: white;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  .score-input::-webkit-inner-spin-button,
+  .score-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .score-input:focus { outline: none; border-color: var(--blue); }
+  .score-input.filled { border-color: var(--gray-300); background: var(--gray-50); }
+
+  /* RESULTS */
+  .results-card {
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+    margin-top: 24px; overflow: hidden; position: sticky; top: 0; z-index: 10;
+  }
+  .results-header {
+    background: var(--blue-dark); color: white;
+    padding: 12px 20px; display: flex; align-items: center; gap: 8px;
+  }
+  .results-header h3 { font-size: 14px; font-weight: 700; }
+  .results-body { padding: 16px 20px; }
+
+  .kpi-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .kpi {
+    text-align: center; padding: 14px 8px;
+    border-radius: 8px; border: 1.5px solid var(--gray-200);
+    transition: all 0.3s;
+  }
+  .kpi.k { border-color: #fcd34d; background: #fef9c3; }
+  .kpi.p { border-color: #bfdbfe; background: var(--blue-light); }
+  .kpi.diff { border-color: var(--gray-200); background: var(--gray-50); }
+  .kpi-val { font-size: 28px; font-weight: 800; line-height: 1; }
+  .kpi.k .kpi-val { color: #92400e; }
+  .kpi.p .kpi-val { color: var(--blue); }
+  .kpi.diff .kpi-val { color: var(--gray-800); }
+  .kpi-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--gray-400); margin-top: 4px; }
+
+  /* Progress bar */
+  .progress-wrap { margin-bottom: 10px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray-400); margin-bottom: 4px; }
+  .progress-bar { height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .progress-fill.k { background: linear-gradient(90deg, #f59e0b, #d97706); }
+  .progress-fill.p { background: linear-gradient(90deg, #3b82f6, #1a56db); }
+
+  /* Interpretation */
+  .interpretation {
+    background: var(--gray-50); border-radius: 8px; border: 1px solid var(--gray-200);
+    padding: 12px 14px; font-size: 13px; color: var(--gray-600); line-height: 1.5;
+    display: none; margin-top: 8px;
+  }
+  .interpretation.show { display: block; }
+  .interpretation strong { color: var(--gray-800); }
+
+  /* Errors */
+  .errors-box {
+    background: var(--red-light); border: 1px solid var(--red);
+    border-radius: 8px; padding: 10px 14px; margin-top: 8px;
+    font-size: 13px; color: var(--red); display: none;
+  }
+  .errors-box.show { display: block; }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .btn {
+    padding: 11px 22px; border-radius: 8px; font-size: 14px;
+    font-weight: 600; cursor: pointer; border: none; font-family: var(--font);
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-ghost { background: white; color: var(--gray-700); border: 2px solid var(--gray-200); }
+  .btn-ghost:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* Completed count */
+  .completed-badge {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 10px;
+    background: var(--gray-100); color: var(--gray-400);
+    transition: all 0.2s; margin-left: auto;
+  }
+  .completed-badge.done { background: var(--green-light); color: var(--green); }
+
+  @media (max-width: 500px) {
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .kpi.diff { grid-column: 1 / -1; }
+    .q-text { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="container">
+    <h1>Indikatori vašeg stila rada</h1>
+    <p>Upitnik za samoprocjenu — 22 para izjava</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- UPUTE -->
+  <div class="upute">
+    <h2>📋 Upute za ispunjavanje</h2>
+    <ul>
+      <li>Svakom paru izjava treba dati ukupno <strong>3 boda</strong></li>
+      <li>Ovisno o tome koliko se slažete s izjavom A ili B, dodijelite joj 0, 1, 2 ili 3 boda</li>
+      <li>Upotrebljavajte samo cijele brojeve (0, 1, 2 ili 3)</li>
+      <li>Odgovarajte kako <em>osjećate</em>, a ne kako bi trebalo</li>
+    </ul>
+    <div class="primjer">
+      <strong>Primjer:</strong> ako se gotovo uvijek slažete s A, upišite A=3, B=0 &nbsp;|&nbsp;
+      Ako se podjednako slažete, upišite A=1 ili A=2 i ostatak B-u &nbsp;|&nbsp;
+      <strong>Zbroj uvijek mora biti 3!</strong>
+    </div>
+  </div>
+
+  <!-- LIVE RESULTS (sticky) -->
+  <div class="section-label" style="display:flex;align-items:center;">
+    Rezultati u realnom vremenu
+    <span class="completed-badge" id="completedBadge">0 / 22 dovršeno</span>
+  </div>
+
+  <div class="results-card">
+    <div class="results-header">
+      <span>📊</span>
+      <h3>Ukupni bodovi</h3>
+    </div>
+    <div class="results-body">
+      <div class="kpi-row">
+        <div class="kpi k">
+          <div class="kpi-val" id="kpiK">0</div>
+          <div class="kpi-lbl">K — konvergentni</div>
+        </div>
+        <div class="kpi p">
+          <div class="kpi-val" id="kpiP">0</div>
+          <div class="kpi-lbl">P — divergentni</div>
+        </div>
+        <div class="kpi diff">
+          <div class="kpi-val" id="kpiDiff">—</div>
+          <div class="kpi-lbl">Razlika (P – K)</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><span>K</span><span id="kPct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill k" id="kBar" style="width:0%"></div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>P</span><span id="pPct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill p" id="pBar" style="width:0%"></div></div>
+      </div>
+
+      <div class="errors-box" id="errorsBox"></div>
+      <div class="interpretation" id="interpretation"></div>
+    </div>
+  </div>
+
+  <!-- PITANJA -->
+  <div class="section-label" style="margin-top:24px;">22 para izjava</div>
+  <div id="questionsContainer"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="checkAll()">✅ Provjeri sve</button>
+    <button class="btn btn-ghost" onclick="resetAll()">🔄 Resetiraj</button>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+// K = konvergentni (col G in Excel), P = divergentni (col H)
+const QUESTIONS = [
+  { num: 1,  a: "Dobra u sakupljanju novih ideja",                              aCol: "P",
+             b: "Dobra u nadgradnji postojećih ideja",                          bCol: "K" },
+  { num: 2,  a: "Brzo mi dosade rutinski zadaci",                               aCol: "P",
+             b: "Mogu ih raditi da mi ne dosade",                               bCol: "K" },
+  { num: 3,  a: "Dobro uočavam detalje",                                        aCol: "K",
+             b: "Bolje vidim cijelu sliku",                                     bCol: "P" },
+  { num: 4,  a: "Volim raditi na praktičnim problemima",                        aCol: "P",
+             b: "Volim raditi na teoretskim problemima",                        bCol: "K" },
+  { num: 5,  a: "Cijenim originalnost",                                         aCol: "P",
+             b: "Cijenim probitačnost",                                         bCol: "K" },
+  { num: 6,  a: "Više volim raditi «po knjizi»",                                aCol: "K",
+             b: "Više volim rješavati stvari kad naiđu",                        bCol: "P" },
+  { num: 7,  a: "Volim isprobati nova rješenja",                                aCol: "P",
+             b: "Volim isprobati praktična rješenja",                           bCol: "K" },
+  { num: 8,  a: "Volim raditi na jednom projektu",                              aCol: "K",
+             b: "Volim raditi na više projekata istovremeno",                   bCol: "P" },
+  { num: 9,  a: "Imam puno ideja od kojih su neke neostvarive",                 aCol: "P",
+             b: "Imam nekoliko realnih i provjerenih ideja",                    bCol: "K" },
+  { num: 10, a: "Vjerujem da politika treba biti izazov",                       aCol: "P",
+             b: "Vjerujem da se politika treba slijediti",                      bCol: "K" },
+  { num: 11, a: "Promičem harmoniju u grupi",                                   aCol: "K",
+             b: "Promičem podjelu mišljenja u grupi",                           bCol: "P" },
+  { num: 12, a: "Ne prihvaćam pravila",                                         aCol: "P",
+             b: "Slijedim pravila",                                             bCol: "K" },
+  { num: 13, a: "Tražim prisnost",                                              aCol: "K",
+             b: "Tražim avanturu",                                              bCol: "P" },
+  { num: 14, a: "Završavam projekt zaobilaznim putem",                          aCol: "P",
+             b: "Završavam projekt korak po korak",                             bCol: "K" },
+  { num: 15, a: "Volim raditi stvari na meni poznat način",                     aCol: "K",
+             b: "Volim raditi stvari svaki put drugačije",                      bCol: "P" },
+  { num: 16, a: "Prosljeđujem projekt drugima kada znam da će moći biti završen", aCol: "P",
+             b: "Pratim projekt od početka do kraja",                           bCol: "K" },
+  { num: 17, a: "Dajem prednost stvaranju nečeg novog",                         aCol: "P",
+             b: "Prednost dajem usavršavanju već postojećeg",                   bCol: "K" },
+  { num: 18, a: "Cijenim tradiciju",                                            aCol: "K",
+             b: "Cijenim promjene",                                             bCol: "P" },
+  { num: 19, a: "Volim raditi na novim zadacima",                               aCol: "P",
+             b: "Volim raditi na relevantnim dnevnim zadacima",                 bCol: "K" },
+  { num: 20, a: "Donosim odluke na temelju činjenica",                          aCol: "K",
+             b: "Donosim odluke intuitivno",                                    bCol: "P" },
+  { num: 21, a: "Prednost dajem pisanim instrukcijama",                         aCol: "K",
+             b: "Prednost dajem slikovnim instrukcijama",                       bCol: "P" },
+  { num: 22, a: "Na različite situacije reagiram odmjereno",                    aCol: "K",
+             b: "Na različite situacije reagiram spontano",                     bCol: "P" },
+];
+
+// ── BUILD UI ──────────────────────────────────────────────────────
+function buildQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  QUESTIONS.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${q.num}`;
+    card.innerHTML = `
+      <div class="question-header">
+        <div class="q-num">${q.num}</div>
+        <span>Par izjava</span>
+        <span class="q-sum-indicator" id="sum-${q.num}">Zbroj: ?</span>
+      </div>
+      <div class="question-rows">
+        <div class="q-row">
+          <span class="q-label a">A</span>
+          <span class="q-text">${q.a}</span>
+          <span class="q-col-tag ${q.aCol}">${q.aCol}</span>
+          <input class="score-input" type="number" id="a-${q.num}" min="0" max="3"
+            oninput="onInput(${q.num})" placeholder="0–3">
+        </div>
+        <div class="q-row">
+          <span class="q-label b">B</span>
+          <span class="q-text">${q.b}</span>
+          <span class="q-col-tag ${q.bCol}">${q.bCol}</span>
+          <input class="score-input" type="number" id="b-${q.num}" min="0" max="3"
+            oninput="onInput(${q.num})" placeholder="0–3">
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ── LOGIC ─────────────────────────────────────────────────────────
+function getVal(id) {
+  const v = document.getElementById(id).value;
+  return v === '' ? null : parseInt(v);
+}
+
+function onInput(num) {
+  const a = getVal(`a-${num}`);
+  const b = getVal(`b-${num}`);
+  const sumEl = document.getElementById(`sum-${num}`);
+  const card = document.getElementById(`card-${num}`);
+
+  // Clamp values
+  ['a', 'b'].forEach(p => {
+    const el = document.getElementById(`${p}-${num}`);
+    if (el.value !== '') {
+      let v = parseInt(el.value);
+      if (v < 0) el.value = 0;
+      if (v > 3) el.value = 3;
+    }
+    if (el.value !== '') el.classList.add('filled');
+    else el.classList.remove('filled');
+  });
+
+  const av = getVal(`a-${num}`);
+  const bv = getVal(`b-${num}`);
+
+  if (av === null && bv === null) {
+    sumEl.textContent = 'Zbroj: ?';
+    sumEl.className = 'q-sum-indicator';
+    card.className = 'question-card';
+  } else if (av !== null && bv !== null) {
+    const s = av + bv;
+    sumEl.textContent = `Zbroj: ${s} / 3`;
+    if (s === 3) {
+      sumEl.className = 'q-sum-indicator ok';
+      card.className = 'question-card valid';
+    } else {
+      sumEl.className = 'q-sum-indicator err';
+      card.className = 'question-card invalid';
+    }
+  } else {
+    sumEl.textContent = av !== null ? `A=${av}, B=?` : `A=?, B=${bv}`;
+    sumEl.className = 'q-sum-indicator';
+    card.className = 'question-card';
+  }
+
+  updateResults();
+}
+
+function updateResults() {
+  let K = 0, P = 0, completed = 0;
+  const errors = [];
+
+  QUESTIONS.forEach(q => {
+    const a = getVal(`a-${q.num}`);
+    const b = getVal(`b-${q.num}`);
+    if (a !== null && b !== null) {
+      if (a + b === 3) {
+        completed++;
+        // Add to K or P
+        if (q.aCol === 'K') K += a; else P += a;
+        if (q.bCol === 'K') K += b; else P += b;
+      } else {
+        errors.push(`Pitanje ${q.num}: zbroj je ${a + b}, a treba biti 3`);
+      }
+    }
+  });
+
+  const total = K + P;
+
+  document.getElementById('kpiK').textContent = K;
+  document.getElementById('kpiP').textContent = P;
+  document.getElementById('kpiDiff').textContent = completed > 0 ? (P - K >= 0 ? '+' : '') + (P - K) : '—';
+
+  const kPct = total > 0 ? Math.round(K / total * 100) : 0;
+  const pPct = total > 0 ? Math.round(P / total * 100) : 0;
+  document.getElementById('kBar').style.width = kPct + '%';
+  document.getElementById('pBar').style.width = pPct + '%';
+  document.getElementById('kPct').textContent = kPct + '%';
+  document.getElementById('pPct').textContent = pPct + '%';
+
+  // Completed badge
+  const badge = document.getElementById('completedBadge');
+  badge.textContent = `${completed} / 22 dovršeno`;
+  badge.className = completed === 22 ? 'completed-badge done' : 'completed-badge';
+
+  // Errors
+  const errBox = document.getElementById('errorsBox');
+  if (errors.length > 0) {
+    errBox.innerHTML = '⚠️ Netočni zbrojevi:<br>' + errors.map(e => `• ${e}`).join('<br>');
+    errBox.className = 'errors-box show';
+  } else {
+    errBox.className = 'errors-box';
+  }
+
+  // Interpretation
+  const interp = document.getElementById('interpretation');
+  if (completed === 22 && errors.length === 0) {
+    const diff = P - K;
+    let text = '';
+    if (diff > 20) {
+      text = `<strong>Dominantno divergentni (P) stil.</strong> Skloni ste kreativnom, nekonvencionalnom razmišljanju. Volite istraživati nove ideje, raditi na više fronti i pronaći originalna rješenja. Rutinski zadaci vam brzo dosade.`;
+    } else if (diff > 8) {
+      text = `<strong>Pretežno divergentni (P) stil.</strong> Kombinirate kreativnost s pragmatičnošću. Otvoreni ste za nove ideje, ali znate i kada se treba prilagoditi sustavu.`;
+    } else if (diff > -8) {
+      text = `<strong>Uravnoteženi stil (K i P podjednako).</strong> Fleksibilno prelazite između kreativnog i analitičkog pristupa. Dobro funkcionirate i u strukturiranim i u nestrukturiranim okruženjima.`;
+    } else if (diff > -20) {
+      text = `<strong>Pretežno konvergentni (K) stil.</strong> Skloni ste analitičkom, sustavnom pristupu. Preferirate jasne procedure, rad na jednom zadatku i pouzdane, provjerene metode.`;
+    } else {
+      text = `<strong>Dominantno konvergentni (K) stil.</strong> Snažna sklonost prema strukturiranosti, pravilima i preciznosti. Izvrsni ste u provedbi i optimizaciji — manje u improvizaciji.`;
+    }
+    interp.innerHTML = text + `<br><br><span style="color:var(--gray-400);font-size:12px">K=${K} · P=${P} · Razlika P−K=${diff >= 0 ? '+' : ''}${diff}</span>`;
+    interp.className = 'interpretation show';
+  } else {
+    interp.className = 'interpretation';
+  }
+}
+
+function checkAll() {
+  const errors = [];
+  let missing = [];
+  QUESTIONS.forEach(q => {
+    const a = getVal(`a-${q.num}`);
+    const b = getVal(`b-${q.num}`);
+    if (a === null || b === null) {
+      missing.push(q.num);
+      document.getElementById(`card-${q.num}`).className = 'question-card invalid';
+    } else if (a + b !== 3) {
+      errors.push(q.num);
+    }
+  });
+
+  if (missing.length > 0) {
+    alert(`Niste popunili pitanja: ${missing.join(', ')}\n\nMolimo unesite bodove za A i B u svakom paru.`);
+    // Scroll to first missing
+    document.getElementById(`card-${missing[0]}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else if (errors.length > 0) {
+    alert(`Zbroj nije 3 u pitanjima: ${errors.join(', ')}\n\nProvjerite da A + B = 3 za svaki par.`);
+    document.getElementById(`card-${errors[0]}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    document.querySelector('.results-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    alert(`✅ Sve ispunjeno ispravno!\n\nK (konvergentni): ${document.getElementById('kpiK').textContent}\nP (divergentni): ${document.getElementById('kpiP').textContent}\nRazlika: ${document.getElementById('kpiDiff').textContent}`);
+  }
+}
+
+function resetAll() {
+  if (!confirm('Resetirati sve odgovore?')) return;
+  QUESTIONS.forEach(q => {
+    ['a', 'b'].forEach(p => {
+      const el = document.getElementById(`${p}-${q.num}`);
+      el.value = '';
+      el.classList.remove('filled');
+    });
+    document.getElementById(`sum-${q.num}`).textContent = 'Zbroj: ?';
+    document.getElementById(`sum-${q.num}`).className = 'q-sum-indicator';
+    document.getElementById(`card-${q.num}`).className = 'question-card';
+  });
+  updateResults();
+}
+
+// Init
+buildQuestions();
+updateResults();
+</script>
+</body>
+</html>
